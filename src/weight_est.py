@@ -86,7 +86,7 @@ def tw_ratio_range(tw_lower, tw_upper, num, Endurance, WTO_guess, WTO_lower, WTO
     print("T/W range:", [min(valid_range),max(valid_range)])
 
 # Paramaters
-Endurance = 10.0/60.0 # hours
+Endurance = params["Endurance"] # hours
 TW_ratio = 0.6
 
 # Initial Guess for WTO

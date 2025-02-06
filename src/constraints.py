@@ -54,6 +54,9 @@ if (TW_ratio_val and wing_loading_val):
     plt.scatter(wing_loading_val, TW_ratio_val, color='r', label='Design Point')
 plt.ylim((0,1.0))
 plt.legend()
+plt.xlabel('Wing Loading (lbs/ft^2)')
+plt.ylabel('Thrust to Weight Ratio')
+plt.title('Constraints Diagram')
 
 # Show the plot
 plt.show()

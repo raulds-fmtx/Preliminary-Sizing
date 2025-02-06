@@ -45,7 +45,7 @@ def battery_power_density_estimate(thrust):
     return battery_power_density_model.predict([[motor_power_estimate(thrust)]])[0]
 
 # Calculate Weights, Thrust, and Power
-def weight_estimate(TW_ratio, Endurance, WTO_guess, WTO_lower, WTO_upper):
+def weight_estimate_sweep(TW_ratio, Endurance, WTO_guess, WTO_lower, WTO_upper):
     lower_init = WTO_lower
     upper_init = WTO_upper
     
@@ -71,11 +71,18 @@ def weight_estimate(TW_ratio, Endurance, WTO_guess, WTO_lower, WTO_upper):
             motor_weight_estimate(T_guess),
             Endurance * motor_power_estimate(T_guess) / battery_power_density_estimate(T_guess), 
             motor_power_estimate(T_guess)]
-    
+
+def weight_verification(Thrust, Power, Energy, W_battery, W_motor):
+    WTO = aircraft_weight_estimate(W_battery,W_motor)
+    TW_ratio = Thrust / WTO
+    Endurance = Energy / Power  
+    return [TW_ratio, Endurance, WTO, W_motor, W_battery, Power]
+
 # Get lists of parameters dependence on endurance and thrust-to-weight ratio   
-def full_estimation(thrust_weight_range, endurance_range, WTO_guess, WTO_lower, WTO_upper, num):
-    thrust_space = np.linspace(thrust_weight_range[0], thrust_weight_range[1], 1000)
-    endurance_space = np.linspace(endurance_range[0], endurance_range[1], num)
+def full_estimation(sweep_params, fixed_params):
+    #FIXME Get design point
+    thrust_space = np.linspace(sweep_params['tw_range'][0], sweep_params['tw_range'][1], 1000)
+    endurance_space = np.linspace(sweep_params['endurance_range'][0], sweep_params['endurance_range'][1], sweep_params['num'])
     
     takeoff_weight_list = []
     motor_weight_list = []
@@ -90,7 +97,7 @@ def full_estimation(thrust_weight_range, endurance_range, WTO_guess, WTO_lower, 
         power = []
         tw_ratio = []
         for t in thrust_space:
-            result = weight_estimate(t, e, WTO_guess, WTO_lower, WTO_upper) 
+            result = weight_estimate_sweep(t, e, sweep_params['WTO_guess'], sweep_params['WTO_lower'], sweep_params['WTO_upper']) 
             if result is not None:
                 takeoff_weight.append(result[0])
                 motor_weight.append(result[1])
@@ -102,10 +109,28 @@ def full_estimation(thrust_weight_range, endurance_range, WTO_guess, WTO_lower, 
         battery_weight_list.append(battery_weight)
         power_list.append(power)
         tw_ratio_list.append(tw_ratio)
+    
+    design_point = None
+    if all(fixed_params.values()):
+        design_point = weight_verification(
+            fixed_params['Thrust'],
+            fixed_params['Power'],
+            fixed_params['Energy'],
+            fixed_params['W_battery'],
+            fixed_params['W_motor']
+        )
+        print("Design Point:")
+        print("Thrust-to-Weight Ratio: {:.2f}".format(design_point[0]))
+        print("Endurance: {:.2f} mins".format(design_point[1]*60))
+        print("Takeoff Weight: {:.2f} lbs".format(design_point[2]))
+        print("Motor Weight: {:.2f} lbs".format(design_point[3]))
+        print("Battery Weight: {:.2f} lbs".format(design_point[4]))
+        print("Power: {:.2f} W".format(design_point[5]))
         
-    return takeoff_weight_list, motor_weight_list, battery_weight_list, power_list, tw_ratio_list
+    return takeoff_weight_list, motor_weight_list, battery_weight_list, power_list, tw_ratio_list, design_point
       
-def visualize_estimation(endurance_range, takeoff_weight_list, motor_weight_list, battery_weight_list, power_list, tw_ratio_list):
+def visualize_estimation(endurance_range, takeoff_weight_list, motor_weight_list, battery_weight_list, power_list, tw_ratio_list, design_point):
+    #FIXME: Plot design point
     fig, axs = plt.subplots(2,2)
     fig.suptitle('Sizing Analysis')
     
@@ -116,6 +141,14 @@ def visualize_estimation(endurance_range, takeoff_weight_list, motor_weight_list
     
     for i in range(0,2):
         for j in range(0,2):
+            if (i,j) == (0,0):
+                axs[i,j].scatter(design_point[0], design_point[2], label="Design Point")
+            if (i,j) == (0,1):
+                axs[i,j].scatter(design_point[0], design_point[3], label="Design Point")
+            if (i,j) == (1,0):
+                axs[i,j].scatter(design_point[0], design_point[4], label="Design Point")
+            if (i,j) == (1,1):
+                axs[i,j].scatter(design_point[0], design_point[5], label="Design Point")
             for k in range(len(endurance_range)):
                 if (i,j) == (0,0):
                     axs[i,j].plot(tw_ratio_list[k], takeoff_weight_list[k], label="{:.2f} mins".format(endurance_range[k]*60))
@@ -132,24 +165,33 @@ def visualize_estimation(endurance_range, takeoff_weight_list, motor_weight_list
     plt.show()
    
 # Weight Estimation sweep parameters
-tw_range = [0.1,1.5]
-endurance_range = [5/60.0,10/60.0]
-num = 6
-WTO_guess = 7 # lbs
-WTO_lower = 2 # lbs
-WTO_upper = 12 # lbs
+sweep_params = {
+    'tw_range': [0.1,1.5],
+    'endurance_range': [5/60.0,10/60.0],
+    'num': 6,
+    'WTO_guess': 7, # lbs
+    'WTO_lower': 2, # lbs
+    'WTO_upper': 12 # lbs
+}
 
 # Design Point
-endurance = 5
-TW_ratio = 0.6 
+# Enter all values or None for the design point
+fixed_params = {
+    'Thrust': 10, # Required (lbs)
+    'Power': 2000.0, # Required (W)
+    'Energy': 100.0, # Required (Wh)
+    'W_battery': 2.0, # Required (lbs)
+    'W_motor': 1.5, # Required (lbs)
+}
 
 # Run Weight Estimation
-takeoff_weight_list, motor_weight_list, battery_weight_list, power_list, tw_ratio_list = full_estimation(tw_range, endurance_range, WTO_guess, WTO_lower, WTO_upper, num)
+takeoff_weight_list, motor_weight_list, battery_weight_list, power_list, tw_ratio_list, design_point = full_estimation(sweep_params,fixed_params)
 visualize_estimation(
-    np.linspace(endurance_range[0],endurance_range[1],num), 
+    np.linspace(sweep_params['endurance_range'][0],sweep_params['endurance_range'][1],sweep_params['num']), 
     takeoff_weight_list,
     motor_weight_list, 
     battery_weight_list, 
     power_list, 
-    tw_ratio_list
+    tw_ratio_list,
+    design_point
 )

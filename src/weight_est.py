@@ -187,7 +187,7 @@ sweep_params = {
 # Weight Estimation constraint parameters
 constraint_params = {
     'tw_range': 0.8,
-    'endurance': 6.0/60.0,
+    'endurance': 6.0/60.0, # hrs
 }
 
 # Design Point

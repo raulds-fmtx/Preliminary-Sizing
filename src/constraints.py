@@ -41,8 +41,8 @@ WTO_estimate = params['WTO_estimate']
 wing_loading = np.linspace(0.5,4.5,1000)
 
 # Enter Design Point Here
-TW_ratio_val = 0.5
-wing_loading_val = 8.0/5.0
+TW_ratio_val = 0.8
+wing_loading_val = 2.0
 
 # Create a sample plot
 plt.plot(wing_loading,takeoff_constraint(wing_loading), label='Takeoff (min)')
@@ -53,7 +53,7 @@ plt.axvline(x=landing_constraint(), color='g', linestyle='--', label='Landing (m
 if (TW_ratio_val and wing_loading_val):
     plt.scatter(wing_loading_val, TW_ratio_val, color='r', label='Design Point')
 plt.ylim((0,1.0))
-plt.legend()
+plt.legend(loc='upper right')
 plt.xlabel('Wing Loading (lbs/ft^2)')
 plt.ylabel('Thrust to Weight Ratio')
 plt.title('Constraints Diagram')

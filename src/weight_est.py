@@ -181,7 +181,7 @@ sweep_params = {
     'num': 6,
     'WTO_guess': 7, # lbs
     'WTO_lower': 5, # lbs
-    'WTO_upper': 12 # lbs
+    'WTO_upper': 15 # lbs
 }
 
 # Weight Estimation constraint parameters

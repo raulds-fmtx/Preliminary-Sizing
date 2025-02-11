@@ -38,21 +38,39 @@ def min_turn_radius_constraint():
 
 # Plot inputs
 WTO_estimate = params['WTO_estimate']
-wing_loading = np.linspace(0.5,4.5,1000)
+max_wing_loading = 5.0
+max_tw_ratio = 1.0
+wing_loading = np.linspace(0.5,max_wing_loading,1000)
 
 # Enter Design Point Here
-TW_ratio_val = 0.8
-wing_loading_val = 2.0
+TW_ratio_val = None
+wing_loading_val = None
+
+# Calculate constraints
+takeoff = takeoff_constraint(wing_loading)
+velocity = velocity_constraint(wing_loading)
+size = size_constraint(WTO_estimate)
+turn_radius = min_turn_radius_constraint()
+landing = landing_constraint()
+wing_loading_subset = np.linspace(size,min([turn_radius,landing]),1000)
+takeoff_subset = takeoff_constraint(wing_loading_subset)
+velocity_subset = velocity_constraint(wing_loading_subset)
+min_takeoff_velocity = np.maximum(takeoff_subset,velocity_subset)
+
 
 # Create a sample plot
-plt.plot(wing_loading,takeoff_constraint(wing_loading), label='Takeoff (min)')
-plt.plot(wing_loading,velocity_constraint(wing_loading), label='Velocity (min)')
-plt.axvline(x=size_constraint(WTO_estimate), color='r', linestyle='--', label='Size (min)')
-plt.axvline(x=min_turn_radius_constraint(), color='b', linestyle='--', label='Turn Radius (max)')
-plt.axvline(x=landing_constraint(), color='g', linestyle='--', label='Landing (max)')
+plt.plot(wing_loading,takeoff, label='Takeoff (min)')
+plt.plot(wing_loading,velocity, label='Velocity (min)')
+plt.axvline(x=size, color='r', linestyle='--', label='Size (min)')
+plt.axvline(x=turn_radius, color='b', linestyle='--', label='Turn Radius (max)')
+plt.axvline(x=landing, color='g', linestyle='--', label='Landing (max)')
+# Shade the feasible region
+plt.fill_between(wing_loading_subset, min_takeoff_velocity, max_tw_ratio, where=(min_takeoff_velocity <= max_tw_ratio), color='gray', alpha=0.5)
+# Plot the design point
 if (TW_ratio_val and wing_loading_val):
     plt.scatter(wing_loading_val, TW_ratio_val, color='r', label='Design Point')
 plt.ylim((0,1.0))
+plt.xlim((0,5.0))
 plt.legend(loc='upper right')
 plt.xlabel('Wing Loading (lbs/ft^2)')
 plt.ylabel('Thrust to Weight Ratio')

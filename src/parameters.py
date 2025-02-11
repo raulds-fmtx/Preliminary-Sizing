@@ -14,8 +14,8 @@ params = {
     # Designed
     "e": 0.8, # unitless
     "AR": 5, # unitless
-    "CLmaxL": 1.9, # unitless
-    "CLmaxTO": 1.9, # unitless
+    "CLmaxL": 1.5, # unitless
+    "CLmaxTO": 1.5, # unitless
     "CLmaxCruise": 1.5, # unitless
     "CD0": 0.02, # unitless
     "WTO_estimate": 10 # lbs

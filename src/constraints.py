@@ -40,7 +40,7 @@ def min_turn_radius_constraint():
 WTO_estimate = params['WTO_estimate']
 max_wing_loading = 5.0
 max_tw_ratio = 1.0
-wing_loading = np.linspace(0.5,max_wing_loading,1000)
+wing_loading = np.linspace(0,max_wing_loading,1000)
 
 # Enter Design Point Here
 TW_ratio_val = None
@@ -52,7 +52,11 @@ velocity = velocity_constraint(wing_loading)
 size = size_constraint(WTO_estimate)
 turn_radius = min_turn_radius_constraint()
 landing = landing_constraint()
-wing_loading_subset = np.linspace(size,min([turn_radius,landing]),1000)
+if min([size]) < min([turn_radius,landing]):
+    wing_loading_subset = np.linspace(size,min([turn_radius,landing]),1000)
+else:
+    wing_loading_subset = np.linspace(0,min([turn_radius,landing]),1000)
+    print("Size constraint violated. Design point not feasible.")
 takeoff_subset = takeoff_constraint(wing_loading_subset)
 velocity_subset = velocity_constraint(wing_loading_subset)
 min_takeoff_velocity = np.maximum(takeoff_subset,velocity_subset)
@@ -61,7 +65,10 @@ min_takeoff_velocity = np.maximum(takeoff_subset,velocity_subset)
 # Create a sample plot
 plt.plot(wing_loading,takeoff, label='Takeoff (min)')
 plt.plot(wing_loading,velocity, label='Velocity (min)')
-plt.axvline(x=size, color='r', linestyle='--', label='Size (min)')
+if min([size]) > min([turn_radius,landing]):
+    plt.axvline(x=size, color='r', linestyle='--', label='Size VIOLATED (min)')
+else:
+    plt.axvline(x=size, color='r', linestyle='--', label='Size (min)')
 plt.axvline(x=turn_radius, color='b', linestyle='--', label='Turn Radius (max)')
 plt.axvline(x=landing, color='g', linestyle='--', label='Landing (max)')
 # Shade the feasible region

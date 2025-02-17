@@ -43,8 +43,8 @@ max_tw_ratio = 1.0
 wing_loading = np.linspace(0,max_wing_loading,1000)
 
 # Enter Design Point Here
-TW_ratio_val = None
-wing_loading_val = None
+TW_ratio_val = None # Enter the thrust to weight ratio of the design point given by A&P
+wing_loading_val = params['WTO_estimate']/(params['b']**2  / params['AR'])
 
 # Calculate constraints
 takeoff = takeoff_constraint(wing_loading)
@@ -76,6 +76,8 @@ plt.fill_between(wing_loading_subset, min_takeoff_velocity, max_tw_ratio, where=
 # Plot the design point
 if (TW_ratio_val and wing_loading_val):
     plt.scatter(wing_loading_val, TW_ratio_val, color='r', label='Design Point')
+elif (wing_loading_val):
+    plt.axvline(x=wing_loading_val, color='y', linestyle='-', label='Design Point')
 plt.ylim((0,1.0))
 plt.xlim((0,5.0))
 plt.legend(loc='upper right')

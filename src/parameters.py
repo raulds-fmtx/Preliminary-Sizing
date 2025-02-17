@@ -1,22 +1,23 @@
 params = {
     # Required
-    "s_FL": 600, # ft
-    "s_TOFL": 100, # ft
+    "s_FL": 800, # ft # Lenient
+    "s_TOFL": 800, # ft # Lenient
     "rho_alt": 0.00235, # lbf/ft^3
     "rho_sea": 0.002377, # lbf/ft^3
     "g": 32.2, # ft/s^2
     "b_max": 6, # ft
-    "V_max": 146.667, # ft/s
+    "V_max": 146.667, # ft/s 
     "Endurance": 5.0/60.0, # hours
-    "R_turn": 50, # ft
+    "R_turn": 100, # ft # Lenient
     # Derived from structural g-loading constraints
-    "V_turn": 146.667, # ft/s
+    "V_turn": 146.667, # ft/s # Lenient    
     # Designed
-    "e": 0.8, # unitless
-    "AR": 5, # unitless
-    "CLmaxL": 1.5, # unitless
-    "CLmaxTO": 1.5, # unitless
-    "CLmaxCruise": 1.5, # unitless
-    "CD0": 0.02, # unitless
-    "WTO_estimate": 10 # lbs
+    "b": 6.0, # ft
+    "e": 0.997, # unitless
+    "AR": 6.750, # unitless
+    "CLmaxL": 1.248, # unitless
+    "CLmaxTO": 1.248, # unitless
+    "CLmaxCruise": 0.648, # unitless
+    "CD0": 0.043, # unitless
+    "WTO_estimate": 12 # lbs
 }

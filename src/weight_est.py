@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 from parameters import params
 
 # Load CSV data
-lipo_data = pd.read_csv('./data/lipo_weight_data.csv')
-edf_data = pd.read_csv('./data/edf_weight_data.csv')
-aircraft_data = pd.read_csv('./data/aircraft_weight_data.csv')
+lipo_data = pd.read_csv('./data/weight/lipo_weight_data.csv')
+edf_data = pd.read_csv('./data/weight/edf_weight_data.csv')
+aircraft_data = pd.read_csv('./data/weight/aircraft_weight_data.csv')
 
 # Aircraft weight regression model
 x1 = aircraft_data['Battery Weight (lbs)']

@@ -10,6 +10,7 @@ def remove_whitespace(df):
     return df
 
 # Import CSV data
+# UNCOMMENT EVERYTHING IN THE SECTION BELOW TO REMOVE WHITE SPACE FROM YOUR CSVS
 wing_flap_data = pd.read_csv('data/polars/Wing-Flap.csv')
 # wing_flap_data = remove_whitespace(wing_flap_data)
 # wing_flap_data.to_csv('data/polars/Wing-Flap.csv', index=False)
@@ -49,9 +50,11 @@ params = {
     # H-Stab Geometry
     'ARh': 4.571,
     # H-stab Sizing Params
-    'aoa_range': (0.0, 10.0), # deg
-    'lh_range': (2.0, 4.0), # ft
-    'bh_range': (1.0, 3.0), # ft
+    'aoa_trim_range': (0.0, 5.0), # deg
+    'aoa_L/TO_range': (0.0, 10.0), # deg
+    'lh_range': (1.0, 4.0), # ft
+    'bh_range': (1.0, 4.0), # ft
+    'zh': 1.5, # ft
     # V-stab Sizing Params
     # Aerodynamic Coefficients
     'CL0wf': CL0wf,

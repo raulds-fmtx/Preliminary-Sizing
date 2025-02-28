@@ -78,8 +78,8 @@ if (TW_ratio_val and wing_loading_val):
     plt.scatter(wing_loading_val, TW_ratio_val, color='r', label='Design Point')
 elif (wing_loading_val):
     plt.axvline(x=wing_loading_val, color='y', linestyle='-', label='Design Point')
-plt.ylim((0,1.0))
-plt.xlim((0,5.0))
+plt.ylim((0,max_tw_ratio))
+plt.xlim((0,max_wing_loading))
 plt.legend(loc='upper right')
 plt.xlabel('Wing Loading (lbs/ft^2)')
 plt.ylabel('Thrust to Weight Ratio')

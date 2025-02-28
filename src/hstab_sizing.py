@@ -23,43 +23,47 @@ def interpolate_value(target, ind, dep, df):
 
 # Define function to calculate horizontal stabilizer size for a given moment arm and trim angle of attack
 def calculate_bh(lh, aoa, params):
+    e0 = 2 * params['CL0wf'] / (np.pi * params['AR']) * (lh / np.sqrt(lh**2 + params['zh']**2))
+    deda = 2 * params['CLawf'] / (np.pi * params['AR']) * (lh / np.sqrt(lh**2 + params['zh']**2))
     t1 = params['ARh'] * params['S'] * params['MAC'] / lh
     t2 = params['Cmacwf'] + (params['CL0wf'] * -params['SM_wing']) + (params['CLawf'] * -params['SM_wing'] * np.deg2rad(aoa))
-    t3 = params['CL0h'] - (params['CLah'] * params['CL0wf'] * (2/(np.pi * params['AR']))) + (params['CLah'] * (1 - (2*params['CLawf']/(np.pi*params['AR']))) * lh / params['MAC'] * np.deg2rad(aoa))
+    t3 = params['CL0h'] - (params['CLah'] * e0) + (params['CLah'] * (1 - deda) * lh / params['MAC'] * np.deg2rad(aoa))
     return np.sqrt(t1 * t2 / t3)
 
 # Define function to calculate angle of attack for a given coefficient of lift
-def aoa(bh, CL, params):
-    t1 = params['CL0wf'] + bh**2/(params['ARh']*params['S']) * (params['CL0h'] - params['CLah'] * (2/(np.pi*params['AR'])) * params['CL0wf'])
+def aoa(lh, bh, CL, params):
+    e0 = 2 * params['CL0wf'] / (np.pi * params['AR']) * (lh / np.sqrt(lh**2 + params['zh']**2))
+    t1 = params['CL0wf'] + bh**2/(params['ARh']*params['S']) * (params['CL0h'] - params['CLah'] * e0)
     t2 = params['CLawf'] + bh**2/(params['ARh']*params['S']) * params['CLah']
     return np.rad2deg((CL - t1) / t2)
 
 # Define function to calculate coefficient of drag for a given angle of attack
-def CD(aoa, bh, flap = False):
-    epsilon_0 = 2 * params['CL0wf'] / (np.pi * params['AR'])
+def CD(aoa, lh, bh, flap = False):
+    e0 = 2 * params['CL0wf'] / (np.pi * params['AR']) * (lh / np.sqrt(lh**2 + params['zh']**2))
     if flap:
         CD_wing = interpolate_value(aoa, 'alpha', 'CD', wing_flap_data)
     else:
         CD_wing = interpolate_value(aoa, 'alpha', 'CD', wing_data)
-    CD_hstab = interpolate_value(aoa - epsilon_0, 'alpha', 'CD', hstab_data)
+    CD_hstab = interpolate_value(aoa - np.rad2deg(e0), 'alpha', 'CD', hstab_data)
     return CD_wing + bh**2 / (params['ARh'] * params['S']) * CD_hstab
 
 # Define function to calculate lift coefficient for a given angle of attack
-def CL(aoa, bh, flap = False):
-    epsilon_0 = 2 * params['CL0wf'] / (np.pi * params['AR'])
+def CL(aoa, lh, bh, flap = False):
+    e0 = 2 * params['CL0wf'] / (np.pi * params['AR']) * (lh / np.sqrt(lh**2 + params['zh']**2))
     if flap:
         CL_wing = interpolate_value(aoa, 'alpha', 'CL', wing_flap_data)
     else:
         CL_wing = interpolate_value(aoa, 'alpha', 'CL', wing_data)
-    CL_hstab = interpolate_value(aoa - epsilon_0, 'alpha', 'CL', hstab_data)
+    CL_hstab = interpolate_value(aoa - np.rad2deg(e0), 'alpha', 'CL', hstab_data)
     return CL_wing + bh**2 / (params['ARh'] * params['S']) * CL_hstab
 
 # Define function to calculate static margin of the aircraft
 def SM(lh,bh):
+    deda = 2 * params['CLawf'] / (np.pi * params['AR']) * (lh / np.sqrt(lh**2 + params['zh']**2))
     x_cg = -params['SM_wing'] * params['MAC'] + params['x_acwf']
     x_ach = lh + x_cg
-    t1 = params['x_acwf'] + params['CLah']/params['CLawf'] * bh**2/params['ARh']/params['S'] * x_ach * (1 - (2*params['CLawf']/(np.pi*params['AR'])))
-    t2 = 1 + params['CLah']/params['CLawf'] * bh**2/params['ARh']/params['S'] * (1 - (2*params['CLawf']/(np.pi*params['AR'])))
+    t1 = params['x_acwf'] + params['CLah']/params['CLawf'] * bh**2/params['ARh']/params['S'] * x_ach * (1 - deda)
+    t2 = 1 + params['CLah']/params['CLawf'] * bh**2/params['ARh']/params['S'] * (1 - deda)
     return t1/t2/(12*params['MAC'])
 
 # Define function to calculate T/W ratio for a given coefficient of drag
@@ -69,25 +73,25 @@ def TW_req(CD0, params):
     t3 = params['rho_alt'] * np.pi * params['e'] * params['AR'] * params['Vmax']**2
     return t1/t2 + t2/t3
 
-def verify(bh, aoa_trim, params):
+def verify(lh, bh, aoa_trim, params):
     # Verify bh is on bh_range
     if bh < params['bh_range'][0] or bh > params['bh_range'][1]:
         return False, {'aoa_L/TO': None, 'TW_req': None}
     # Calculate values
-    CLCruise = CL(aoa_trim, bh)
-    aoa_L_TO = aoa(bh, params['CLmaxL/TO'], params)
-    aoa_CL_0 = aoa(bh, 0, params)
-    TW = TW_req(CD(aoa_CL_0, bh), params)
+    CLCruise = CL(aoa_trim, lh, bh)
+    aoa_L_TO = aoa(lh, bh, params['CLmaxL/TO'], params)
+    aoa_CL_0 = aoa(lh, bh, 0, params)
+    TW = TW_req(CD(aoa_CL_0, lh, bh), params)
     # Perform verification
     ver_cruise = CLCruise > params['CLCruise']
-    ver_aoa = aoa_L_TO > params['aoa_range'][0] and aoa_L_TO < params['aoa_range'][1]
+    ver_aoa = aoa_L_TO > params['aoa_L/TO_range'][0] and aoa_L_TO < params['aoa_L/TO_range'][1]
     ver_TW = TW < params['T/W']
     # return True if all conditions are met, False otherwise
     return ver_cruise and ver_aoa and ver_TW, {'aoa_L/TO': aoa_L_TO, 'TW_req': TW}
 
 # Calculate horizontal stabilizer size for each moment arm and angle of attack
 lh_arr = np.linspace(params['lh_range'][0],params['lh_range'][1],1001)
-aoa_arr = np.linspace(params['aoa_range'][0],params['aoa_range'][1],11)
+aoa_arr = np.linspace(params['aoa_trim_range'][0],params['aoa_trim_range'][1],11)
 bh_arr = np.zeros((len(lh_arr),len(aoa_arr)))
 
 # List to store verified data
@@ -99,7 +103,7 @@ for i in range(len(lh_arr)):
         bh = calculate_bh(lh_arr[i], aoa_arr[j], params)
         bh_arr[i,j] = np.real(bh)
         
-        verified, data = verify(bh, aoa_arr[j], params)
+        verified, data = verify(lh_arr[i], bh, aoa_arr[j], params)
         if verified:
             sm = SM(lh_arr[i],bh)
             x_ac = (sm * 12 * params['MAC']) + (params['x_acwf'] - params['SM_wing'] * params['MAC'])
@@ -121,7 +125,7 @@ for i in range(len(lh_arr)):
             
 # Plot bh vs lh values in verified_data as a scatter plot
 for i in range(len(aoa_arr)):
-    plt.scatter(lh_arr, bh_arr[:,i], label=f'aoa = {aoa_arr[i]}')
+    plt.plot(lh_arr, bh_arr[:,i], label=f'aoa = {aoa_arr[i]}')
 plt.legend()
 plt.xlabel('lh')
 plt.ylabel('bh')

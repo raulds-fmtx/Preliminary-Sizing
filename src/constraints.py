@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from parameters import params
+from constraint_params import params
     
 def takeoff_constraint(wing_loading):
     rho_alt = params['rho_alt']

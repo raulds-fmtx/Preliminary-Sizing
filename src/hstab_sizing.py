@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
-from empennage_params import params, wing_flap_data, wing_data, hstab_data
+from hstab_params import params, wing_flap_data, wing_data, hstab_data
 
 # Define function to interpolate between two values in a dataframe
 def interpolate_value(target, ind, dep, df):

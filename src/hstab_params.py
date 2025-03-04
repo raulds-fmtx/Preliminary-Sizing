@@ -10,19 +10,9 @@ def remove_whitespace(df):
     return df
 
 # Import CSV data
-# UNCOMMENT EVERYTHING IN THE SECTION BELOW TO REMOVE WHITE SPACE FROM YOUR CSVS
 wing_flap_data = pd.read_csv('data/polars/Wing-Flap.csv')
-# wing_flap_data = remove_whitespace(wing_flap_data)
-# wing_flap_data.to_csv('data/polars/Wing-Flap.csv', index=False)
-# wing_flap_data = pd.read_csv('data/polars/Wing-Flap.csv')
 wing_data = pd.read_csv('data/polars/Wing.csv')
-# wing_data = remove_whitespace(wing_data)
-# wing_data.to_csv('data/polars/Wing.csv', index=False)
-# wing_data = pd.read_csv('data/polars/Wing.csv')
 hstab_data = pd.read_csv('data/polars/Hstab.csv')
-# hstab_data = remove_whitespace(hstab_data)
-# hstab_data.to_csv('data/polars/Hstab.csv', index=False)
-# hstab_data = pd.read_csv('data/polars/Hstab.csv')
 
 # Get the coefficients
 CL0wf = wing_data.loc[wing_data['alpha'] == 0, 'CL'].values[0]
@@ -55,8 +45,7 @@ params = {
     'lh_range': (1.0, 4.0), # ft
     'bh_range': (1.0, 4.0), # ft
     'zh': 1.5, # ft
-    # V-stab Sizing Params
-    # Aerodynamic Coefficients
+    # Flight Surface Coefficients
     'CL0wf': CL0wf,
     'CL0wf_flaps': CL0wf_flaps,
     'CL0h': CL0h,

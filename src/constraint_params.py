@@ -12,12 +12,12 @@ params = {
     # Derived from structural g-loading constraints
     "V_turn": 146.667, # ft/s # Lenient    
     # Designed
-    "b": 6.0, # ft
+    "b": 6, # ft
     "e": 0.997, # unitless
     "AR": 6.750, # unitless
     "CLmaxL": 1.248, # unitless
     "CLmaxTO": 1.248, # unitless
     "CLmaxCruise": 0.648, # unitless
-    "CD0": 0.043, # unitless
-    "WTO_estimate": 12 # lbs
+    "CD0": 0.012, # unitless
+    "WTO_estimate": 10 # lbs
 }
